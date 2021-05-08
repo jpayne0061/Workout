@@ -1,0 +1,26 @@
+﻿@model WorkoutApp.Models.Exercise
+
+@{
+    ViewData["Title"] = "CreateExercise";
+}
+
+<h2>CreateExercise</h2>
+
+@using (Html.BeginForm("CreateExercise", "Workout", FormMethod.Post))
+{
+    <table cellpadding="0" cellspacing="0">
+        <tr>
+            <th colspan="2" align="center">Create an Exercise</th>
+        </tr>
+        <tr>
+            <td>Exercise name: </td>
+            <td>
+                @Html.TextBoxFor(m => m.ExerciseName)
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><input type="submit" value="Submit" /></td>
+        </tr>
+    </table>
+}

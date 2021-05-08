@@ -1,0 +1,20 @@
+﻿@model IEnumerable<WorkoutApp.Models.Workout>
+
+<h4>@Html.ActionLink("Create New Workout", "Create", "Workout")</h4>
+
+@foreach (var w in Model)
+{
+    <h2>@Html.ActionLink(w.WorkoutName, "Start", "Workout", new { id = w.WorkoutId })</h2>
+
+
+    <ul>
+        @foreach (var exercise in w.WorkoutToExercise)
+        {
+            <li>@exercise.Exercise.ExerciseName</li>
+        }
+    </ul>
+
+    <div style="margin-bottom: 15px"></div>
+}
+
+

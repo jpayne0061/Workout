@@ -1,0 +1,35 @@
+﻿@model WorkoutApp.ViewModels.SetViewModel
+
+
+<h2>@Model.Exercise.ExerciseName</h2>
+
+<h3>Set: @Model.WorkoutSet.SetOrder</h3>
+<h3>Target Reps: @Model.WorkoutSet.Reps</h3>
+
+
+@using (Html.BeginForm("CompleteSet", "Workout", FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.WorkoutSet.Reps)
+    @Html.HiddenFor(m => m.WorkoutSet.WorkoutSetId)
+
+    <h4>Weight</h4>
+    @Html.DropDownListFor(m => m.Weight,
+                new SelectList(Enumerable.Range(0, 100).Where(x => x % 5 == 0).ToArray()))
+
+    <h4>Reps Completed</h4>
+    @Html.DropDownListFor(m => m.RepsCompleted,
+                new SelectList(Enumerable.Range(0, 20).ToArray()))
+
+    <h4>Difficulty</h4>
+    @Html.DropDownListFor(m => m.Difficulty,
+                new SelectList(Enum.GetValues(typeof(WorkoutApp.Enums.Difficulty))))
+
+    <h4>Notes (optional)</h4>
+    @Html.TextAreaFor(m => m.Notes)
+
+
+    <input type="submit" value="Submit" />
+
+}
+
+

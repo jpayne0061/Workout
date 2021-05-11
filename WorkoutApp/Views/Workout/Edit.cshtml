@@ -1,0 +1,53 @@
+﻿@model WorkoutApp.ViewModels.WorkoutVM
+
+
+<h2>Create Workout Step 1 </h2>
+
+@using (Html.BeginForm("EditWorkout", "Workout", FormMethod.Post))
+{
+    <div>
+        <div>
+            <div>Workout name: </div>
+            <div>
+                @Html.TextBoxFor(m => m.Workout.WorkoutName)
+            </div>
+        </div>
+        <div>
+
+            @for (int i = 0; i < Model.AllExercises.Count; i++)
+            {
+            <div>
+                @Html.HiddenFor(w => w.Workout.DateCreated)
+                @Html.HiddenFor(w => w.Workout.CreatedBy)
+                @Html.HiddenFor(m => m.AllExercises[i])
+                @Html.HiddenFor(m => m.AllExercises[i].ExerciseID)
+                @Html.HiddenFor(m => m.AllExercises[i].ExerciseName)
+                @Html.CheckBoxFor(m => m.AllExercises[i].Selected, new { @class = ".exercise-check-box", @onclick = "doItNow(event)" })
+                <h3 style="margin-bottom: 5px; display: inline-block"> @Model.AllExercises[i].ExerciseName</h3>
+
+                <div style="display: none;" class="hidden-sets">
+                    <h4>Set and Reps</h4>
+                    <span>Enter your reps for each set separated by spaces or commas</span>
+                    <br>
+                    <span>For example: 10 8 6 4</span>
+                    <br>
+                    @Html.TextBoxFor(m => m.AllExercises[i].SetsAndReps)
+                    <br>
+                    <span>Exercise Order</span>
+                    @Html.TextBoxFor(m => m.AllExercises[i].Order)
+                </div>
+            </div>
+            }
+        </div>
+        <div>
+            <div style="margin-bottom: 30px"></div>
+            <div><input type="submit" value="Submit" /></div>
+        </div>
+    </div>
+}
+
+<script>
+    function doItNow(e) {
+        e.target.nextSibling.nextSibling.nextElementSibling.style.display = "block"
+    }
+</script>

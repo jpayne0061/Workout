@@ -1,16 +1,21 @@
-﻿@model IEnumerable<WorkoutApp.Models.Workout>
+﻿@model IEnumerable<WorkoutApp.ViewModels.WorkoutVM>
 
 <h4>@Html.ActionLink("Create New Workout", "Create", "Workout")</h4>
 
 @foreach (var w in Model)
 {
-    <h2>@Html.ActionLink(w.WorkoutName, "Start", "Workout", new { id = w.WorkoutId })</h2>
+    <div>
+        <h2 style="display: inline-block">@Html.ActionLink(w.Workout.WorkoutName, "Start", "Workout", new { id = w.Workout.WorkoutId })</h2>
+
+        <span>@Html.ActionLink("Edit", "EditWorkout", "Workout", new { id = w.Workout.WorkoutId })</span>
+    </div>
+
 
 
     <ul>
-        @foreach (var exercise in w.WorkoutToExercise)
+        @foreach (var exercise in w.ExerciseDisplay)
         {
-            <li>@exercise.Exercise.ExerciseName</li>
+            <li>@exercise</li>
         }
     </ul>
 

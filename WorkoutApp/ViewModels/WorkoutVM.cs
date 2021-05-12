@@ -14,7 +14,7 @@ namespace WorkoutApp.ViewModels
         public WorkoutVM(Workout workout)
         {
             Workout = workout;
-            AllExercises = workout.WorkoutSet.Select(ws => new ExerciseVM(ws.Exercise.ExerciseName)).ToList();
+            AllExercises = workout.WorkoutToExercise.Select(ws => new ExerciseVM(ws.Exercise.ExerciseName)).ToList();
         }
 
         public Workout Workout { get; set; }

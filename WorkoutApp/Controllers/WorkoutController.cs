@@ -25,18 +25,18 @@ namespace WorkoutApp.Controllers
         {
             var workouts = _context.Workout.ToList();
 
-            var exercises = _context.Exercise.ToList();
+            var exercises = _context.Exercise.ToDictionary(x => x.ExerciseId, x => x);
 
             foreach (var w in workouts)
             {
-                w.WorkoutToExercise = _context.WorkoutToExercise.Where(we => we.WorkoutId == w.WorkoutId).ToList();
+                w.WorkoutToExercise = _context.WorkoutToExercise.Where(we => we.WorkoutId == w.WorkoutId && we.Active).ToList();
 
                 foreach (var we in w.WorkoutToExercise)
                 {
-                    we.Exercise = exercises.Where(e => e.ExerciseId == we.ExerciseId).Single();
+                    we.Exercise = exercises[we.ExerciseId];
                 }
 
-                w.WorkoutSet = _context.WorkoutSet.Where(ws => ws.WorkoutId == w.WorkoutId).OrderBy(ws => ws.SetOrder).ToList();
+                w.WorkoutSet = _context.WorkoutSet.Where(ws => ws.WorkoutId == w.WorkoutId && ws.Active).OrderBy(ws => ws.SetOrder).ToList();
             }
 
             List<WorkoutVM> workoutViewModels = new List<WorkoutVM>();
@@ -51,7 +51,7 @@ namespace WorkoutApp.Controllers
 
                 foreach (var wte in wtes)
                 {
-                    foreach (var ws in wte.Workout.WorkoutSet.Where(ws => ws.ExerciseId == wte.ExerciseId).OrderBy(x => x.SetOrder))
+                    foreach (var ws in wte.Workout.WorkoutSet.Where(ws => ws.ExerciseId == wte.ExerciseId && ws.Active).OrderBy(x => x.SetOrder))
                     {
                         if (exerciseToSets.ContainsKey(ws.Exercise.ExerciseName))
                         {
@@ -69,7 +69,6 @@ namespace WorkoutApp.Controllers
 
                 workoutViewModels.Add(workoutVM);
             }
-
 
             return View(workoutViewModels);
         }
@@ -126,7 +125,7 @@ namespace WorkoutApp.Controllers
                 {
                     _context.Exercise.Add(exercise);
                     _context.SaveChanges();
-                    return RedirectToAction("CreateExercise");
+                    return RedirectToAction("Index");
                 }
             }
             catch (Exception ex)
@@ -147,7 +146,7 @@ namespace WorkoutApp.Controllers
             workout.DateCreated = DateTime.Now;
             workout.CreatedBy = 1;
             workout.WorkoutName = workoutVM.Workout.WorkoutName;
-            workout.WorkoutToExercise = workoutVM.AllExercises.Where(e => e.Selected).Select(x => new WorkoutToExercise { Workout = workout, ExerciseId = x.ExerciseID, Order = x.Order }).ToList();
+            workout.WorkoutToExercise = workoutVM.AllExercises.Where(e => e.Selected).Select(x => new WorkoutToExercise { Workout = workout, ExerciseId = x.ExerciseID, Order = x.Order, Active = true}).ToList();
             workoutVM.AllExercises = workoutVM.AllExercises.Where(e => e.Selected).ToList();
 
             workout.WorkoutSet = GetWorkOutSets(workoutVM, workout);
@@ -159,7 +158,7 @@ namespace WorkoutApp.Controllers
                     _context.Workout.Add(workout);
                     _context.SaveChanges();
 
-                    return View("Index");
+                    return RedirectToAction("Index");
                 }
             }
             catch (Exception ex)
@@ -183,14 +182,23 @@ namespace WorkoutApp.Controllers
 
                 for (int i = 0; i < sets.Count; i++)
                 {
-
                     WorkoutSet workoutSet = new WorkoutSet();
+
+                    //if(edit)
+                    //{
+                    //    if (workout.WorkoutToExercise.Select(e => e.ExerciseId).Contains(exercise.ExerciseID))
+                    //    {
+                    //        workoutSet.WorkoutSetId = workout.WorkoutSet.Where(ws => ws.ExerciseId == exercise.ExerciseID).First().WorkoutSetId;
+                    //    }
+                    //}
+                    
                     workoutSet.Reps = sets[i];
                     workoutSet.SetOrder = i + 1;
                     workoutSet.ExerciseId = exercise.ExerciseID;
                     workoutSet.DateCreated = DateTime.Now;
                     workoutSet.Workout = workout;
                     workoutSet.ExerciseId = exercise.ExerciseID;
+                    workoutSet.Active = true;
 
                     workoutSets.Add(workoutSet);
                 }
@@ -250,24 +258,85 @@ namespace WorkoutApp.Controllers
             Workout workout = _context.Workout
                 .Where(w => w.WorkoutId == id)
                 .Single();
+            //*******************************************
 
-            workout.WorkoutToExercise = _context.WorkoutToExercise.Where(we => we.WorkoutId == workout.WorkoutId).ToList();
-            workout.WorkoutSet = _context.WorkoutSet.Where(ws => ws.WorkoutId == workout.WorkoutId).ToList();
+            //var workouts = _context.Workout.ToList();
+
+            var exercises = _context.Exercise.ToList();
+
+            workout.WorkoutToExercise = _context.WorkoutToExercise.Where(we => we.WorkoutId == workout.WorkoutId && we.Active).ToList();
 
             foreach (var we in workout.WorkoutToExercise)
             {
-                we.Exercise = _context.Exercise.Where(e => e.ExerciseId == we.ExerciseId).Single();
+                we.Exercise = exercises.Where(e => e.ExerciseId == we.ExerciseId).Single();
             }
 
+            workout.WorkoutSet = _context.WorkoutSet.Where(ws => ws.WorkoutId == workout.WorkoutId).OrderBy(ws => ws.SetOrder).ToList();
 
-            var vm = new WorkoutVM();
 
-            vm.Workout = workout;
-            vm.AllExercises = workout.WorkoutSet.Select(ws => ws.Exercise)
-                .ToList().Select(x => new ExerciseVM { ExerciseID = x.ExerciseId, ExerciseName = x.ExerciseName })
-                .ToList();
+            WorkoutVM workoutVM = new WorkoutVM(workout);
 
-            return View("Edit", vm);
+
+
+            Dictionary<string, List<string>> exerciseToSets = new Dictionary<string, List<string>>();
+
+            List<WorkoutToExercise> wtes = workout.WorkoutToExercise.OrderBy(x => x.Order).ToList();
+
+            foreach (var wte in wtes)
+            {
+                foreach (var ws in wte.Workout.WorkoutSet.Where(ws => ws.ExerciseId == wte.ExerciseId).OrderBy(x => x.SetOrder))
+                {
+                    if (exerciseToSets.ContainsKey(ws.Exercise.ExerciseName))
+                    {
+                        exerciseToSets[ws.Exercise.ExerciseName].Add(ws.Reps.ToString());
+                    }
+                    else
+                    {
+                        exerciseToSets[ws.Exercise.ExerciseName] = new List<string> { ws.Reps.ToString() };
+                    }
+                }
+
+            }
+
+            workoutVM.ExerciseDisplay = exerciseToSets.Select(kvp => kvp.Key + " | " + string.Join(", ", kvp.Value)).ToList();
+
+            foreach (ExerciseVM evm in workoutVM.AllExercises)
+            {
+                evm.SetsAndReps = string.Join(", ", exerciseToSets[evm.ExerciseName]);
+
+                evm.Order = wtes.Where(wte => wte.Exercise.ExerciseName == evm.ExerciseName).Single().Order;
+
+                evm.Selected = true;
+
+                evm.ExerciseID = wtes.Where(wte => wte.Exercise.ExerciseName == evm.ExerciseName).Single().ExerciseId;
+            }
+
+            workoutVM.AllExercises = workoutVM.AllExercises.OrderBy(e => e.Order).ToList();
+
+            //*******************************************
+
+            //workout.WorkoutToExercise = _context.WorkoutToExercise.Where(we => we.WorkoutId == workout.WorkoutId).ToList();
+            //workout.WorkoutSet = _context.WorkoutSet.Where(ws => ws.WorkoutId == workout.WorkoutId).ToList();
+
+            //foreach (var we in workout.WorkoutToExercise)
+            //{
+            //    we.Exercise = _context.Exercise.Where(e => e.ExerciseId == we.ExerciseId).Single();
+            //}
+
+
+            //var vm = new WorkoutVM();
+
+            //vm.Workout = workout;
+            //vm.AllExercises = workout.WorkoutSet.Select(ws => ws.Exercise)
+            //    .ToList().Select(x => new ExerciseVM { ExerciseID = x.ExerciseId, ExerciseName = x.ExerciseName })
+            //    .ToList();
+
+            //foreach (var ws in workout.WorkoutSet)
+            //{
+
+            //}
+
+            return View("Edit", workoutVM);
         }
 
         [HttpPost]
@@ -275,15 +344,37 @@ namespace WorkoutApp.Controllers
         {
             Workout workout = workoutVM.Workout;
 
-            workoutVM.Workout.WorkoutSet = GetWorkOutSets(workoutVM, workoutVM.Workout);
+            workout.WorkoutSet = _context.WorkoutSet.Where(ws => ws.WorkoutId == workout.WorkoutId).ToList();
+
+            workout.WorkoutToExercise = _context.WorkoutToExercise.Where(wte => wte.WorkoutId == workout.WorkoutId).ToList();
+
+            foreach (var wte in workout.WorkoutToExercise)
+            {
+                wte.Active = false;
+            }
+
+            foreach (var ws in workout.WorkoutSet)
+            {
+                ws.Active = false;
+            }
+
+            _context.WorkoutSet.UpdateRange(workout.WorkoutSet);
+            _context.WorkoutToExercise.UpdateRange(workout.WorkoutToExercise);
+
+            _context.SaveChanges();
+
             workoutVM.Workout.WorkoutToExercise = workoutVM.AllExercises
                 .Where(e => e.Selected)
-                .Select(x => new WorkoutToExercise { Workout = workout, ExerciseId = x.ExerciseID, Order = x.Order })
+                .Select(x => new WorkoutToExercise { Workout = workout, ExerciseId = x.ExerciseID, Order = x.Order, Active = true })
                 .ToList();
 
+            workoutVM.Workout.WorkoutSet = GetWorkOutSets(workoutVM, workoutVM.Workout);
+            
             _context.Workout.Update(workout);
 
-            return View("Index");
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
 

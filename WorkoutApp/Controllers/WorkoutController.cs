@@ -375,6 +375,8 @@ namespace WorkoutApp.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("Index");
+
+            //comment
         }
 
 

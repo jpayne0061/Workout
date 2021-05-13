@@ -11,5 +11,8 @@ namespace WorkoutApp.ViewModels
         public int Weight { get; set; }
         public Difficulty Difficulty { get; set; }
         public string Notes { get; set; }
+        public bool IsLastSet { get; set; }
+        public int WorkoutId { get; set; }
+        public WorkoutSetResult PreviousWorkoutSetResult { get; set; }
     }
 }

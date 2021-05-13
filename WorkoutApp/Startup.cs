@@ -67,6 +67,10 @@ namespace WorkoutApp
                     name: "Create",
                     template: "{controller=Workout}/{action=Create}/{id?}");
 
+                routes.MapRoute(
+                    name: "History",
+                    template: "{controller=Workout}/{action=ViewHistory}/{id?}");
+
                 //routes.MapRoute(
                 //    name: "Exercises",
                 //    template: "{controller=Workout}/{action=Exercises}/{id?}");

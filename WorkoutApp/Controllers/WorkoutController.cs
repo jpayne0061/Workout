@@ -73,6 +73,42 @@ namespace WorkoutApp.Controllers
             return View(workoutViewModels);
         }
 
+        [Route("{workoutId:int}")]
+        public ActionResult ViewHistory([FromRoute] int workoutId)
+        {
+            var workout = _context.Workout.Where(w => w.WorkoutId == workoutId).First();
+
+            var workoutToExercise = _context.WorkoutToExercise.Where(wte => wte.WorkoutId == workoutId && wte.Active).ToList();
+
+            var exercises = _context.Exercise.Where(e => workoutToExercise.Select(x => x.ExerciseId).Contains(e.ExerciseId)).ToList();
+
+            var workoutSets = _context.WorkoutSet.Where(ws => ws.WorkoutId == workoutId && ws.Active).ToList();
+
+            var workoutSetResults = _context.WorkoutSetResult.Where(wsr => workoutSets.Select(x => x.WorkoutSetId).Contains(wsr.WorkoutSetId)).ToList();
+
+            WorkoutHistoryVM workoutHistoryVM = new WorkoutHistoryVM();
+
+            workoutHistoryVM.ExerciseHistories = new Dictionary<string, List<WorkoutSetResult>>();
+
+            foreach (WorkoutSetResult wsr in workoutSetResults)
+            {
+                WorkoutSet workoutSet = workoutSets.Where(x => x.WorkoutSetId == wsr.WorkoutSetId).First();
+
+                string exerciseName = exercises.Where(e => e.ExerciseId == workoutSet.ExerciseId).First().ExerciseName;
+
+                if (!workoutHistoryVM.ExerciseHistories.ContainsKey(exerciseName))
+                {
+                    workoutHistoryVM.ExerciseHistories[exerciseName] = new List<WorkoutSetResult> { wsr };
+                }
+                else
+                {
+                    workoutHistoryVM.ExerciseHistories[exerciseName].Add(wsr);
+                }
+            }
+
+            return View("WorkoutHistory", workoutHistoryVM);
+        }
+
         public ActionResult Exercises()
         {
             return View();
@@ -146,7 +182,7 @@ namespace WorkoutApp.Controllers
             workout.DateCreated = DateTime.Now;
             workout.CreatedBy = 1;
             workout.WorkoutName = workoutVM.Workout.WorkoutName;
-            workout.WorkoutToExercise = workoutVM.AllExercises.Where(e => e.Selected).Select(x => new WorkoutToExercise { Workout = workout, ExerciseId = x.ExerciseID, Order = x.Order, Active = true}).ToList();
+            workout.WorkoutToExercise = workoutVM.AllExercises.Where(e => e.Selected).Select(x => new WorkoutToExercise { Workout = workout, ExerciseId = x.ExerciseID, Order = x.Order, Active = true }).ToList();
             workoutVM.AllExercises = workoutVM.AllExercises.Where(e => e.Selected).ToList();
 
             workout.WorkoutSet = GetWorkOutSets(workoutVM, workout);
@@ -184,14 +220,6 @@ namespace WorkoutApp.Controllers
                 {
                     WorkoutSet workoutSet = new WorkoutSet();
 
-                    //if(edit)
-                    //{
-                    //    if (workout.WorkoutToExercise.Select(e => e.ExerciseId).Contains(exercise.ExerciseID))
-                    //    {
-                    //        workoutSet.WorkoutSetId = workout.WorkoutSet.Where(ws => ws.ExerciseId == exercise.ExerciseID).First().WorkoutSetId;
-                    //    }
-                    //}
-                    
                     workoutSet.Reps = sets[i];
                     workoutSet.SetOrder = i + 1;
                     workoutSet.ExerciseId = exercise.ExerciseID;
@@ -207,21 +235,106 @@ namespace WorkoutApp.Controllers
             return workoutSets;
         }
 
-        [Route("{id:int}")]
-        public ActionResult Start([FromRoute] int id)
+        [Route("{workoutId:int}/{workoutSetId:int}/{lastSet:bool}/{currentExerciseId:int}")]
+        public ActionResult StartSet([FromRoute] int workoutId, int workoutSetId, bool lastSet, int currentExerciseId)
         {
-            Workout workout = _context.Workout.Where(w => w.WorkoutId == id).Single();
+            int exerciseId = 0;
 
-            int firstExerciseID = _context.WorkoutToExercise.Where(we => we.WorkoutId == id).OrderBy(x => x.Order).First().ExerciseId;
+            Exercise exercise = null;
 
-            Exercise firstExercise = _context.Exercise.Where(e => e.ExerciseId == firstExerciseID).Single();
+            List<WorkoutToExercise> wtes = _context.WorkoutToExercise
+                .Where(we => we.WorkoutId == workoutId && we.Active)
+                .OrderBy(wte => wte.Order).ToList();
 
-            var firstSet = _context.WorkoutSet.Where(ws => ws.ExerciseId == firstExerciseID).OrderBy(x => x.SetOrder).First();
+            List<Exercise> exercises = _context.Exercise
+                .Where(e => wtes.Select(wte => wte.ExerciseId)
+                .Contains(e.ExerciseId)).ToList();
 
-            SetViewModel setViewModel = new SetViewModel { Exercise = firstExercise, WorkoutSet = firstSet };
+            bool workoutComplete = false;
+
+            if (workoutSetId == 0) //firstSet
+            {
+                exerciseId = wtes.OrderBy(x => x.Order).First().ExerciseId;
+            }
+            else if (lastSet) //last set -- need next exercise
+            {
+                int currentOrder = wtes.Where(wte => wte.ExerciseId == currentExerciseId).First().Order;
+
+                WorkoutToExercise workoutToExercise = wtes.Where(wte => wte.Order == currentOrder + 1).FirstOrDefault();
+
+                if (workoutToExercise == null)
+                {
+                    workoutComplete = true;
+                }
+                else
+                {
+                    exerciseId = wtes.Where(wte => wte.Order == currentOrder + 1).FirstOrDefault().ExerciseId;//is null posible here?
+                }
+
+            }
+            else
+            {
+                exerciseId = currentExerciseId;
+            }
+
+            if (workoutComplete)
+            {
+                return View("WorkoutComplete");
+            }
+
+            exercise = exercises.Where(e => e.ExerciseId == exerciseId).Single();
+
+            var workoutSets = _context.WorkoutSet
+                .Where(ws => ws.WorkoutId == workoutId && ws.ExerciseId == exerciseId && ws.Active)
+                .OrderBy(x => x.SetOrder).ToList();
+
+            WorkoutSet currentWorkoutSet = null;
+
+            bool nextSetIsLast = false;
+
+            WorkoutSet nextWorkoutSet = null;
+
+            SetViewModel setViewModel = null;
+
+            WorkoutSetResult previousResult = null;
+
+            if (workoutSetId == 0 || lastSet)
+            {
+                workoutSetId = workoutSets.Where(ws => ws.ExerciseId == exercise.ExerciseId).OrderBy(ws => ws.SetOrder).First().WorkoutSetId;
+
+                nextWorkoutSet = workoutSets.Where(ws => ws.WorkoutSetId == workoutSetId).First();
+
+                nextSetIsLast = nextWorkoutSet.SetOrder == workoutSets.Select(ws => ws.SetOrder).Max();
+
+                previousResult = GetLastWorkoutSetResult(nextWorkoutSet.WorkoutSetId);
+
+                setViewModel = new SetViewModel { Exercise = exercise, WorkoutSet = nextWorkoutSet, WorkoutId = workoutId, IsLastSet = nextSetIsLast, PreviousWorkoutSetResult = previousResult };
+
+                return View("Set", setViewModel);
+            }
+
+            currentWorkoutSet = workoutSets.Where(ws => ws.WorkoutSetId == workoutSetId).First();
+
+            nextWorkoutSet = workoutSets.Where(ws => ws.ExerciseId == exerciseId && ws.SetOrder > currentWorkoutSet.SetOrder).First();
+
+            nextSetIsLast = nextWorkoutSet.SetOrder == workoutSets.Select(ws => ws.SetOrder).Max();
+
+            previousResult = GetLastWorkoutSetResult(nextWorkoutSet.WorkoutSetId);
+
+            setViewModel = new SetViewModel { Exercise = exercise, WorkoutSet = nextWorkoutSet, WorkoutId = workoutId, IsLastSet = nextSetIsLast, PreviousWorkoutSetResult = previousResult };
 
             return View("Set", setViewModel);
         }
+
+
+        public WorkoutSetResult GetLastWorkoutSetResult(int workoutSetId)
+        {
+            var lastWorkoutSetResult = _context.WorkoutSetResult.Where(wsr => wsr.WorkoutSetId == workoutSetId)
+                                             .OrderByDescending(x => x.DateCreated).FirstOrDefault();
+
+            return lastWorkoutSetResult;
+        }
+
 
         [HttpPost]
         public ActionResult CompleteSet([FromForm] SetViewModel setViewModel)
@@ -239,12 +352,13 @@ namespace WorkoutApp.Controllers
 
             _context.SaveChanges();
 
-            //return View next set or next exercise
-
-            return View("Set", setViewModel);
+            return RedirectToAction("StartSet", 
+                new { workoutId = setViewModel.WorkoutId,
+                    workoutSetId = setViewModel.WorkoutSet.WorkoutSetId,
+                    lastSet = setViewModel.IsLastSet,
+                    currentExerciseId = setViewModel.Exercise.ExerciseId
+                });
         }
-
-
 
 
         // GET: Workout/Edit/5
@@ -271,7 +385,7 @@ namespace WorkoutApp.Controllers
                 we.Exercise = exercises.Where(e => e.ExerciseId == we.ExerciseId).Single();
             }
 
-            workout.WorkoutSet = _context.WorkoutSet.Where(ws => ws.WorkoutId == workout.WorkoutId).OrderBy(ws => ws.SetOrder).ToList();
+            workout.WorkoutSet = _context.WorkoutSet.Where(ws => ws.WorkoutId == workout.WorkoutId && ws.Active).OrderBy(ws => ws.SetOrder).ToList();
 
 
             WorkoutVM workoutVM = new WorkoutVM(workout);
@@ -312,6 +426,11 @@ namespace WorkoutApp.Controllers
             }
 
             workoutVM.AllExercises = workoutVM.AllExercises.OrderBy(e => e.Order).ToList();
+
+
+            HashSet<int> exerciseIDs = workoutVM.AllExercises.Select(ex => ex.ExerciseID).ToHashSet();
+
+            workoutVM.AllExercises.AddRange(exercises.Where(e => !exerciseIDs.Contains(e.ExerciseId)).Select(e => new ExerciseVM { ExerciseID = e.ExerciseId, ExerciseName = e.ExerciseName}));
 
             //*******************************************
 
@@ -367,6 +486,8 @@ namespace WorkoutApp.Controllers
                 .Where(e => e.Selected)
                 .Select(x => new WorkoutToExercise { Workout = workout, ExerciseId = x.ExerciseID, Order = x.Order, Active = true })
                 .ToList();
+
+            workoutVM.AllExercises = workoutVM.AllExercises.Where(e => e.Selected).ToList();
 
             workoutVM.Workout.WorkoutSet = GetWorkOutSets(workoutVM, workoutVM.Workout);
             

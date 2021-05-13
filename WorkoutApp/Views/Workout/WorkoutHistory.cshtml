@@ -1,0 +1,18 @@
+﻿@model WorkoutApp.ViewModels.WorkoutHistoryVM
+
+
+<h2>WorkoutHistory</h2>
+
+@foreach (KeyValuePair<string, List<WorkoutSetResult>> exerciseHistory in Model.ExerciseHistories)
+{
+    <h2>@exerciseHistory.Key</h2>
+
+    @foreach (WorkoutSetResult workoutSetResult in exerciseHistory.Value)
+    {
+        <h4>@workoutSetResult.DateCreated</h4>
+        <h4>Weight: @workoutSetResult.Weight</h4>
+        <h4>Reps: @workoutSetResult.RepsCompleted</h4>
+        <h4>Notes: @workoutSetResult.Notes</h4>
+        <br>
+    }
+}

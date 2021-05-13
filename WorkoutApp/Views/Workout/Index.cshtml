@@ -4,11 +4,12 @@
 
 @foreach (var w in Model)
 {
-    <div>
-        <h2 style="display: inline-block">@Html.ActionLink(w.Workout.WorkoutName, "Start", "Workout", new { id = w.Workout.WorkoutId })</h2>
+<div>
+    <h2 style="display: inline-block">@Html.ActionLink(w.Workout.WorkoutName, "StartSet", "Workout", new { workoutId = w.Workout.WorkoutId, workoutSetId = 0, lastSet = false, currentExerciseId = 0 })</h2>
 
-        <span>@Html.ActionLink("Edit", "EditWorkout", "Workout", new { id = w.Workout.WorkoutId })</span>
-    </div>
+    <span>@Html.ActionLink("Edit", "EditWorkout", "Workout", new { id = w.Workout.WorkoutId })</span>
+    <span style="padding-left: 15px">@Html.ActionLink("History", "ViewHistory", "Workout", new { workoutId = w.Workout.WorkoutId })</span>
+</div>
 
 
 

@@ -12,7 +12,7 @@ namespace WorkoutApp.Models
         public string Notes { get; set; }
         public int? Weight { get; set; }
         public int WorkoutSetResultId { get; set; }
-
+        public int WorkoutSessionId { get; set; }
         public WorkoutSet WorkoutSet { get; set; }
     }
 }

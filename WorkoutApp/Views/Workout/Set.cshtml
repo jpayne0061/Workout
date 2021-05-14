@@ -8,8 +8,10 @@
 
 <h5>Previous Weight: @Model.PreviousWorkoutSetResult?.Weight</h5>
 <h5>Previous Reps: @Model.PreviousWorkoutSetResult?.RepsCompleted</h5>
+<h5>Previous Difficulty: @Model.PreviousWorkoutSetResult?.Difficulty</h5>
 <h5>Previous Notes: @Model.PreviousWorkoutSetResult?.Notes</h5>
 
+<span>session id: @Model.WorkoutSessionId</span>
 
 @using (Html.BeginForm("CompleteSet", "Workout", FormMethod.Post))
 {
@@ -20,6 +22,7 @@
     @Html.HiddenFor(m => m.Exercise.ExerciseName)
     @Html.HiddenFor(m => m.WorkoutId)
     @Html.HiddenFor(m => m.IsLastSet)
+    @Html.HiddenFor(m => m.WorkoutSessionId)
 
     <h4>Weight</h4>
     @Html.DropDownListFor(m => m.Weight,

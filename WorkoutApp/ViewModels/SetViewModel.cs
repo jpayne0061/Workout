@@ -5,6 +5,20 @@ namespace WorkoutApp.ViewModels
 {
     public class SetViewModel
     {
+        public SetViewModel()
+        {
+
+        }
+
+        public SetViewModel(WorkoutSetResult previousWorkoutSetResult)
+        {
+
+            Weight = previousWorkoutSetResult.Weight == null ? 0 : (int)previousWorkoutSetResult.Weight;
+            RepsCompleted = previousWorkoutSetResult.RepsCompleted == null ? 0 : (int)previousWorkoutSetResult.RepsCompleted;
+            Difficulty = previousWorkoutSetResult.Difficulty == null ? 0 : (Difficulty)previousWorkoutSetResult.Difficulty;
+            Notes = previousWorkoutSetResult.Notes;
+        }
+
         public Exercise Exercise { get; set; }
         public WorkoutSet WorkoutSet { get; set; }
         public int RepsCompleted { get; set; }
@@ -13,6 +27,8 @@ namespace WorkoutApp.ViewModels
         public string Notes { get; set; }
         public bool IsLastSet { get; set; }
         public int WorkoutId { get; set; }
+        public int WorkoutSessionId { get; set; }
         public WorkoutSetResult PreviousWorkoutSetResult { get; set; }
+        
     }
 }

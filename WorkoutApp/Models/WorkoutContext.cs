@@ -21,6 +21,7 @@ namespace WorkoutApp.Models
         public virtual DbSet<WorkoutSet> WorkoutSet { get; set; }
         public virtual DbSet<WorkoutSetResult> WorkoutSetResult { get; set; }
         public virtual DbSet<WorkoutToExercise> WorkoutToExercise { get; set; }
+        public virtual DbSet<WorkoutSession> WorkoutSession { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -133,6 +134,11 @@ namespace WorkoutApp.Models
                     .HasForeignKey(d => d.WorkoutId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK__WorkoutTo__Worko__46E78A0C");
+            });
+
+            modelBuilder.Entity<WorkoutSession>(entity =>
+            {
+                entity.Property(e => e.DateCreated).HasColumnType("datetime");
             });
         }
     }

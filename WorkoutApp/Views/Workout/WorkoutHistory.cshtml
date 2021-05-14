@@ -1,18 +1,25 @@
-﻿@model WorkoutApp.ViewModels.WorkoutHistoryVM
+﻿@model List<WorkoutApp.ViewModels.WorkoutSessionVM>
 
 
 <h2>WorkoutHistory</h2>
 
-@foreach (KeyValuePair<string, List<WorkoutSetResult>> exerciseHistory in Model.ExerciseHistories)
+@foreach (var item in Model)
 {
-    <h2>@exerciseHistory.Key</h2>
+    <h2>@item.WorkoutSessionDate</h2>
 
-    @foreach (WorkoutSetResult workoutSetResult in exerciseHistory.Value)
-    {
-        <h4>@workoutSetResult.DateCreated</h4>
-        <h4>Weight: @workoutSetResult.Weight</h4>
-        <h4>Reps: @workoutSetResult.RepsCompleted</h4>
-        <h4>Notes: @workoutSetResult.Notes</h4>
-        <br>
-    }
+    <div style="margin-left: 10px">
+        @foreach (var item2 in item.ExerciseHistories)
+        {
+            <h3>@item2.ExerciseName.</h3>
+
+            @foreach (var item3 in item2.Results)
+            {
+                <h4 style="margin-left: 10px">@item3</h4>
+            }
+        }
+
+    </div>
+
+
+
 }

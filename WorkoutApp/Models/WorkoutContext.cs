@@ -27,7 +27,7 @@ namespace WorkoutApp.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=.\\SQLExpress02;Database=Workout;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=tcp:auto-data.database.windows.net,1433;Initial Catalog=EvansWorkoutApp_db;Persist Security Info=False;User ID=;Password=;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
             }
         }
 

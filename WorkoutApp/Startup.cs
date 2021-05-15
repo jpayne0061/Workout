@@ -49,8 +49,9 @@ namespace WorkoutApp
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
-                app.UseHsts();
+                app.UseDeveloperExceptionPage();
+                //app.UseExceptionHandler("/Home/Error");
+                //app.UseHsts();
             }
 
             app.UseHttpsRedirection();

@@ -1,13 +1,15 @@
 ﻿@model WorkoutApp.ViewModels.WorkoutVM
 
 
-<h2>Create Workout Step 1 </h2>
+<h2>Create Workout</h2>
+
+@*<h4>@Html.ActionLink("Create Exercise", "CreateExercise", "Workout")</h4>*@
 
 @using (Html.BeginForm("Create", "Workout", FormMethod.Post))
 {
-    <div>
+    <div class="form-group">
         <div>
-            <div>Workout name: </div>
+            <h4>Workout name</h4>
             <div>
                 @Html.TextBoxFor(m => m.Workout.WorkoutName)
             </div>
@@ -20,32 +22,42 @@
                 @Html.HiddenFor(m => m.AllExercises[i])
                 @Html.HiddenFor(m => m.AllExercises[i].ExerciseID)
                 @Html.HiddenFor(m => m.AllExercises[i].ExerciseName)
-                @Html.CheckBoxFor(m => m.AllExercises[i].Selected, new { @class = ".exercise-check-box", @onclick = "doItNow(event)" })
-                <h3 style="margin-bottom: 5px; display: inline-block"> @Model.AllExercises[i].ExerciseName</h3>
+                @Html.CheckBoxFor(m => m.AllExercises[i].Selected, new { @class = ".exercise-check-box", @onclick = "showForm(event)" })
+                <h4 style="margin-bottom: 5px; display: inline-block"> @Model.AllExercises[i].ExerciseName</h4>
 
                 <div style="display: none;" class="hidden-sets">
-                    <h4>Set and Reps</h4>
-                    <span>Enter your reps for each set separated by spaces or commas</span>
+                    <small style="font-size: 1.07em">Enter sets and reps like this: 10 8 6</small>
+
+                    <h4>Sets and Reps</h4>
+                    @Html.TextBoxFor(m => m.AllExercises[i].SetsAndReps, new { @class = ".form-control" })
                     <br>
-                    <span>For example: 10 8 6 4</span>
-                    <br>
-                    @Html.TextBoxFor(m => m.AllExercises[i].SetsAndReps)
-                    <br>
-                    <span>Exercise Order</span>
-                    @Html.TextBoxFor(m => m.AllExercises[i].Order)
+                    <h4>Exercise Order</h4>
+                    @Html.TextBoxFor(m => m.AllExercises[i].Order, new { @class = ".form-control" })
                 </div>
             </div>
             }
         </div>
-        <div>
+        <div id="create-workout">
             <div style="margin-bottom: 30px"></div>
-            <div><input type="submit" value="Submit" /></div>
+            <div><input type="submit" class="btn btn-success" value="Submit" /></div>
         </div>
     </div>
 }
 
 <script>
-    function doItNow(e) {
-        e.target.nextSibling.nextSibling.nextElementSibling.style.display = "block"
+    var globalOrder = 1;
+
+    function showForm(e) {
+        console.log("e: ", e)
+        if (e.target.nextSibling.nextSibling.nextElementSibling.style.display == "block") {
+            e.target.nextSibling.nextSibling.nextElementSibling.style.display = "none";
+            return;
+        }
+
+        e.target.nextSibling.nextSibling.nextElementSibling.style.display = "block";
+
+        e.target.nextSibling.nextSibling.nextElementSibling.children[5].value = globalOrder;
+
+        globalOrder += 1;
     }
 </script>

@@ -67,7 +67,7 @@ namespace WorkoutApp.Controllers
 
                 }
 
-                workoutVM.ExerciseDisplay = exerciseToSets.Select(kvp => kvp.Key + " | " + string.Join(", ", kvp.Value)).ToList();
+                workoutVM.ExerciseDisplay = exerciseToSets;
 
                 workoutViewModels.Add(workoutVM);
             }
@@ -140,26 +140,6 @@ namespace WorkoutApp.Controllers
 
                 workoutSessions.Add(workoutSessionVM);
             }
-
-            //WorkoutHistoryVM workoutHistoryVM = new WorkoutHistoryVM();
-
-            //workoutHistoryVM.ExerciseHistories = new Dictionary<string, List<WorkoutSetResult>>();
-
-            //foreach (WorkoutSetResult wsr in workoutSetResults)
-            //{
-            //    WorkoutSet workoutSet = workoutSets.Where(x => x.WorkoutSetId == wsr.WorkoutSetId).First();
-
-            //    string exerciseName = exercises.Where(e => e.ExerciseId == workoutSet.ExerciseId).First().ExerciseName;
-
-            //    if (!workoutHistoryVM.ExerciseHistories.ContainsKey(exerciseName))
-            //    {
-            //        workoutHistoryVM.ExerciseHistories[exerciseName] = new List<WorkoutSetResult> { wsr };
-            //    }
-            //    else
-            //    {
-            //        workoutHistoryVM.ExerciseHistories[exerciseName].Add(wsr);
-            //    }
-            //}
 
             return View("WorkoutHistory", workoutSessions);
         }
@@ -508,7 +488,7 @@ namespace WorkoutApp.Controllers
 
             }
 
-            workoutVM.ExerciseDisplay = exerciseToSets.Select(kvp => kvp.Key + " | " + string.Join(", ", kvp.Value)).ToList();
+            workoutVM.ExerciseDisplay = exerciseToSets;// exerciseToSets.Select(kvp => kvp.Key + " | " + string.Join(", ", kvp.Value)).ToList();
 
             foreach (ExerciseVM evm in workoutVM.AllExercises)
             {

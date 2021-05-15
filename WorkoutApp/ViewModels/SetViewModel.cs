@@ -12,6 +12,10 @@ namespace WorkoutApp.ViewModels
 
         public SetViewModel(WorkoutSetResult previousWorkoutSetResult)
         {
+            if(previousWorkoutSetResult == null)
+            {
+                return;
+            }
 
             Weight = previousWorkoutSetResult.Weight == null ? 0 : (int)previousWorkoutSetResult.Weight;
             RepsCompleted = previousWorkoutSetResult.RepsCompleted == null ? 0 : (int)previousWorkoutSetResult.RepsCompleted;

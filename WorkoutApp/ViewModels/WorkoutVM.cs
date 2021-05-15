@@ -4,6 +4,12 @@ using System.Linq;
 
 namespace WorkoutApp.ViewModels
 {
+    //public class ExerciseDisplay
+    //{
+    //    public string ExerciseName { get; set; }
+    //    public string SetsAndReps { get; set; }
+    //}
+
     public class WorkoutVM
     {
         public WorkoutVM()
@@ -20,6 +26,6 @@ namespace WorkoutApp.ViewModels
         public Workout Workout { get; set; }
         public List<ExerciseVM> AllExercises { get; set; }
         public List<WorkoutSet> WorkoutSets { get; set; }
-        public List<string> ExerciseDisplay { get; set; }
+        public Dictionary<string, List<string>> ExerciseDisplay { get; set; }
     }
 }

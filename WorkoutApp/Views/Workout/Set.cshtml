@@ -1,17 +1,21 @@
 ﻿@model WorkoutApp.ViewModels.SetViewModel
 
+<h3>@Model.Exercise.ExerciseName</h3>
 
-<h2>@Model.Exercise.ExerciseName</h2>
+<h4>Set: @Model.WorkoutSet.SetOrder</h4>
+<h4>Target Reps: @Model.WorkoutSet.Reps</h4>
 
-<h3>Set: @Model.WorkoutSet.SetOrder</h3>
-<h3>Target Reps: @Model.WorkoutSet.Reps</h3>
+@if (@Model.PreviousWorkoutSetResult != null)
+{
+    <h5>Previous Session: @Model.PreviousWorkoutSetResult?.Weight lbs,  @Model.PreviousWorkoutSetResult?.RepsCompleted - @Model.PreviousWorkoutSetResult?.Difficulty </h5>
+}
 
-<h5>Previous Weight: @Model.PreviousWorkoutSetResult?.Weight</h5>
-<h5>Previous Reps: @Model.PreviousWorkoutSetResult?.RepsCompleted</h5>
-<h5>Previous Difficulty: @Model.PreviousWorkoutSetResult?.Difficulty</h5>
-<h5>Previous Notes: @Model.PreviousWorkoutSetResult?.Notes</h5>
 
-<span>session id: @Model.WorkoutSessionId</span>
+@if (Model.PreviousWorkoutSetResult?.Notes != null)
+{
+    <h5>Previous Notes: @Model.PreviousWorkoutSetResult?.Notes</h5>
+}
+
 
 @using (Html.BeginForm("CompleteSet", "Workout", FormMethod.Post))
 {
@@ -24,9 +28,9 @@
     @Html.HiddenFor(m => m.IsLastSet)
     @Html.HiddenFor(m => m.WorkoutSessionId)
 
+<div id="complete-set">
     <h4>Weight</h4>
-    @Html.DropDownListFor(m => m.Weight,
-                new SelectList(Enumerable.Range(0, 100).Where(x => x % 5 == 0).ToArray()))
+    @Html.DropDownListFor(m => m.Weight, new SelectList(Enumerable.Range(0, 100).Where(x => x % 5 == 0).ToArray()))
 
     <h4>Reps Completed</h4>
     @Html.DropDownListFor(m => m.RepsCompleted,
@@ -36,12 +40,24 @@
     @Html.DropDownListFor(m => m.Difficulty,
                 new SelectList(Enum.GetValues(typeof(WorkoutApp.Enums.Difficulty))))
 
-    <h4>Notes (optional)</h4>
-    @Html.TextAreaFor(m => m.Notes)
+    <h4 style="display: inline-block">Notes:</h4> <span style="color: dodgerblue; display: inline-block; margin-bottom: 3px; font-size: 16px;" onclick="showNoteField()">Add</span>
+    <div id="note-field" style="display: none">
+        @Html.TextAreaFor(m => m.Notes)
+    </div>
+
+</div>
 
 
-    <input type="submit" value="Submit" />
+    <div style="margin-top: 15px">
+        <input type="submit" class="btn btn-success" value="Submit" />
+    </div>
+
+
 
 }
 
-
+<script>
+    function showNoteField() {
+        document.getElementById("note-field").style.display = "block";
+    }
+</script>

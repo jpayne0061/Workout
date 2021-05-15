@@ -14,10 +14,10 @@
 
 
 
-<div>
+<div style="margin-left: 10px">
     @foreach (var exercise in w.ExerciseDisplay)
     {
-        <h3>@exercise.Key</h3>
+        <span style="font-weight: 300; font-size: 20px">@exercise.Key</span>
         <h5 style="margin-left: 10px">@string.Join(", ", exercise.Value)</h5>
     }
 </div>

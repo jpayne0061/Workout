@@ -5,7 +5,7 @@
 
 @foreach (var item in Model)
 {
-    <h2>@item.WorkoutSessionDate</h2>
+    <h2>@item.WorkoutSessionDate.ToLongDateString()</h2>
 
     <div style="margin-left: 10px">
         @foreach (var item2 in item.ExerciseHistories)

@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WorkoutApp.Models;
+using System.IO;
 
 namespace WorkoutApp
 {
@@ -36,8 +37,10 @@ namespace WorkoutApp
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+            string connString = File.ReadAllText("settings.txt");
+
             services.AddDbContext<WorkoutContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("Workout")));
+                    options.UseSqlServer(connString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

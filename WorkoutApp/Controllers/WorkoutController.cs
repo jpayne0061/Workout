@@ -80,11 +80,11 @@ namespace WorkoutApp.Controllers
         {
             var workout = _context.Workout.Where(w => w.WorkoutId == workoutId).First();
 
-            var workoutToExercise = _context.WorkoutToExercise.Where(wte => wte.WorkoutId == workoutId && wte.Active).ToList();
+            var workoutToExercise = _context.WorkoutToExercise.Where(wte => wte.WorkoutId == workoutId).ToList();
 
             var exercises = _context.Exercise.Where(e => workoutToExercise.Select(x => x.ExerciseId).Contains(e.ExerciseId)).ToList();
 
-            var workoutSets = _context.WorkoutSet.Where(ws => ws.WorkoutId == workoutId && ws.Active).ToList();
+            var workoutSets = _context.WorkoutSet.Where(ws => ws.WorkoutId == workoutId).ToList();
 
             var workoutSetResults = _context.WorkoutSetResult.Where(wsr => workoutSets.Select(x => x.WorkoutSetId).Contains(wsr.WorkoutSetId)).ToList();
 

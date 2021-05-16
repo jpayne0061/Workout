@@ -5,26 +5,26 @@
 
 @using (Html.BeginForm("EditWorkout", "Workout", FormMethod.Post))
 {
+<div>
     <div>
+        <div>Workout name: </div>
         <div>
-            <div>Workout name: </div>
-            <div>
-                @Html.TextBoxFor(m => m.Workout.WorkoutName)
-            </div>
-            @Html.HiddenFor(m => m.Workout.WorkoutId)
-
-            @Html.HiddenFor(m => m.Workout.WorkoutSet)
-
-            @for (int i = 0; i < Model.Workout.WorkoutSet.Count; i++)
-            {
-                @Html.HiddenFor(m => m.Workout.WorkoutSet.ToList()[i].WorkoutSetId)
-            }
-
+            @Html.TextBoxFor(m => m.Workout.WorkoutName)
         </div>
-        <div>
+        @Html.HiddenFor(m => m.Workout.WorkoutId)
 
-            @for (int i = 0; i < Model.AllExercises.Count; i++)
-            {
+        @Html.HiddenFor(m => m.Workout.WorkoutSet)
+
+        @for (int i = 0; i < Model.Workout.WorkoutSet.Count; i++)
+        {
+            @Html.HiddenFor(m => m.Workout.WorkoutSet.ToList()[i].WorkoutSetId)
+        }
+
+    </div>
+    <div>
+
+        @for (int i = 0; i < Model.AllExercises.Count; i++)
+        {
             <div>
                 @Html.HiddenFor(w => w.Workout.DateCreated)
                 @Html.HiddenFor(w => w.Workout.CreatedBy)
@@ -33,10 +33,10 @@
                 @Html.HiddenFor(m => m.AllExercises[i].ExerciseName)
                 @Html.CheckBoxFor(m => m.AllExercises[i].Selected, new { @class = ".exercise-check-box", @onclick = "doItNow(event)" })
                 <h3 style="margin-bottom: 5px; display: inline-block"> @Model.AllExercises[i].ExerciseName</h3>
-                @{ 
+                @{
                     string style = Model.AllExercises[i].Selected ? "block" : "none";
                 }
-                
+
                 <div style="display: @style;" class="hidden-sets">
                     <h4>Set and Reps</h4>
                     <span>Enter your reps for each set separated by spaces or commas</span>
@@ -49,13 +49,13 @@
                     @Html.TextBoxFor(m => m.AllExercises[i].Order)
                 </div>
             </div>
-            }
-        </div>
-        <div>
-            <div style="margin-bottom: 30px"></div>
-            <div><input type="submit" value="Submit" /></div>
-        </div>
+        }
     </div>
+    <div id="create-workout">
+        <div style="margin-bottom: 30px"></div>
+        <div><input type="submit" class="btn btn-success" value="Submit" /></div>
+    </div>
+</div>
 }
 
 <script>

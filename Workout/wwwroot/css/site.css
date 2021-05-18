@@ -1,0 +1,70 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification\ 
+for details on configuring this project to bundle and minify static web assets. */
+body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Wrapping element */
+/* Set some basic padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+div {
+    padding-top: 1px;
+}
+
+    div h4 {
+        vertical-align: bottom;
+    }
+
+h4 {
+    padding-bottom: 3px
+}
+
+input[type='checkbox'] {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 5px;
+    border: 2px solid #555;
+}
+
+    input[type='checkbox']:checked {
+        background: #abd;
+    }
+
+.btn-success {
+    width: 100%;
+    font-size: 20px;
+}
+
+select {
+    padding: 8px;
+    width: 100%;
+    margin-top: 6px;
+}
+
+#complete-set h4 {
+    margin-bottom: 2px;
+}
+
+textarea {
+    width: 100%;
+}
+
+/* QR code generator */
+#qrCode {
+    margin: 15px;
+}
+
+/* Hide/rearrange for smaller screens */
+@media screen and (max-width: 767px) {
+    /* Hide captions */
+    .carousel-caption {
+        display: none;
+    }
+}

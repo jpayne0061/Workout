@@ -1,0 +1,65 @@
+﻿@using Workout.Enums
+@using Workout.ViewModels
+@model SetViewModel
+
+<h3>@Model.Exercise.ExerciseName</h3>
+
+<h4>Set: @Model.WorkoutSet.SetOrder</h4>
+<h4>Target Reps: @Model.WorkoutSet.Reps</h4>
+
+@if (@Model.PreviousWorkoutSetResult != null)
+{
+    <h5>Previous Session: @Model.PreviousWorkoutSetResult?.Weight lbs,  @Model.PreviousWorkoutSetResult?.RepsCompleted reps (@Model.PreviousWorkoutSetResult?.Difficulty) </h5>
+}
+
+
+@if (Model.PreviousWorkoutSetResult?.Notes != null)
+{
+    <h5>Previous Notes: @Model.PreviousWorkoutSetResult?.Notes</h5>
+}
+
+
+@using (Html.BeginForm("CompleteSet", "Workout", FormMethod.Post))
+{
+
+    @Html.HiddenFor(m => m.WorkoutSet.Reps)
+    @Html.HiddenFor(m => m.WorkoutSet.WorkoutSetId)
+    @Html.HiddenFor(m => m.Exercise.ExerciseId)
+    @Html.HiddenFor(m => m.Exercise.ExerciseName)
+    @Html.HiddenFor(m => m.WorkoutId)
+    @Html.HiddenFor(m => m.IsLastSet)
+    @Html.HiddenFor(m => m.WorkoutSessionId)
+
+    <div id="complete-set">
+        <h4>Weight</h4>
+        @Html.DropDownListFor(m => m.Weight, new SelectList(Enumerable.Range(0, 100).Where(x => x % 5 == 0).ToArray()))
+
+        <h4>Reps Completed</h4>
+        @Html.DropDownListFor(m => m.RepsCompleted,
+                    new SelectList(Enumerable.Range(0, 20).ToArray()))
+
+        <h4>Difficulty</h4>
+        @Html.DropDownListFor(m => m.Difficulty,
+                    new SelectList(Enum.GetValues(typeof(Difficulty))))
+
+        <h4 style="display: inline-block">Notes:</h4> <span style="color: dodgerblue; display: inline-block; margin-bottom: 3px; font-size: 16px;" onclick="showNoteField()">Add</span>
+        <div id="note-field" style="display: none">
+            @Html.TextAreaFor(m => m.Notes)
+        </div>
+
+    </div>
+
+
+    <div style="margin-top: 15px">
+        <input type="submit" class="btn btn-success" value="Submit" />
+    </div>
+
+
+
+}
+
+<script>
+    function showNoteField() {
+        document.getElementById("note-field").style.display = "block";
+    }
+</script>

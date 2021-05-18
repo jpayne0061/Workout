@@ -1,0 +1,64 @@
+﻿@using Workout.ViewModels
+@model WorkoutVM
+
+
+<h2>Create Workout</h2>
+
+@*<h4>@Html.ActionLink("Create Exercise", "CreateExercise", "Workout")</h4>*@
+
+@using (Html.BeginForm("Create", "Workout", FormMethod.Post))
+{
+    <div class="form-group">
+        <div>
+            <h4>Workout name</h4>
+            <div>
+                @Html.TextBoxFor(m => m.Workout.WorkoutName)
+            </div>
+        </div>
+        <div>
+
+            @for (int i = 0; i < Model.AllExercises.Count; i++)
+            {
+            <div>
+                @Html.HiddenFor(m => m.AllExercises[i])
+                @Html.HiddenFor(m => m.AllExercises[i].ExerciseID)
+                @Html.HiddenFor(m => m.AllExercises[i].ExerciseName)
+                @Html.CheckBoxFor(m => m.AllExercises[i].Selected, new { @class = ".exercise-check-box", @onclick = "showForm(event)" })
+                <h4 style="margin-bottom: 5px; display: inline-block"> @Model.AllExercises[i].ExerciseName</h4>
+
+                <div style="display: none;" class="hidden-sets">
+                    <small style="font-size: 1.07em">Enter sets and reps like this: 10 8 6</small>
+
+                    <h4>Sets and Reps</h4>
+                    @Html.TextBoxFor(m => m.AllExercises[i].SetsAndReps, new { @class = ".form-control" })
+                    <br>
+                    <h4>Exercise Order</h4>
+                    @Html.TextBoxFor(m => m.AllExercises[i].Order, new { @class = ".form-control" })
+                </div>
+            </div>
+            }
+        </div>
+        <div id="create-workout">
+            <div style="margin-bottom: 30px"></div>
+            <div><input type="submit" class="btn btn-success" value="Submit" /></div>
+        </div>
+    </div>
+}
+
+<script>
+    var globalOrder = 1;
+
+    function showForm(e) {
+        console.log("e: ", e)
+        if (e.target.nextSibling.nextSibling.nextElementSibling.style.display == "block") {
+            e.target.nextSibling.nextSibling.nextElementSibling.style.display = "none";
+            return;
+        }
+
+        e.target.nextSibling.nextSibling.nextElementSibling.style.display = "block";
+
+        e.target.nextSibling.nextSibling.nextElementSibling.children[5].value = globalOrder;
+
+        globalOrder += 1;
+    }
+</script>

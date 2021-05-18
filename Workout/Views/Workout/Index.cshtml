@@ -1,0 +1,30 @@
+﻿@using Workout.ViewModels
+@model IEnumerable<WorkoutVM>
+
+@foreach (var w in Model)
+{
+    <div>
+        <h2 style="display: inline-block">@w.Workout.WorkoutName</h2>
+        <div style="margin-left: 10px; margin-top: 3px; margin-bottom: 15px; font-size: 18px">
+            <span style="padding-right: 15px">@Html.ActionLink("Start", "StartSet", "Workout", new { workoutId = w.Workout.WorkoutId, workoutSetId = 0, lastSet = false, currentExerciseId = 0, workoutSessionId = 0 })</span>
+            <span style="padding-right: 15px">@Html.ActionLink("History", "ViewHistory", "Workout", new { workoutId = w.Workout.WorkoutId })</span>
+            <span>@Html.ActionLink("Edit", "EditWorkout", "Workout", new { id = w.Workout.WorkoutId })</span>
+        </div>
+
+    </div>
+
+
+
+    <div style="margin-left: 10px">
+        @foreach (var exercise in w.ExerciseDisplay)
+        {
+            <span style="font-weight: 300; font-size: 20px">@exercise.Key</span>
+            <h5 style="margin-left: 10px">@string.Join(", ", exercise.Value)</h5>
+            <hr />
+        }
+    </div>
+
+    <div style="margin-bottom: 15px"></div>
+}
+
+

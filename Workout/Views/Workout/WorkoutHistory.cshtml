@@ -1,0 +1,26 @@
+﻿@using Workout.ViewModels
+@model List<WorkoutSessionVM>
+
+
+<h2>Workout History</h2>
+
+@foreach (var item in Model)
+{
+    <h2>@item.WorkoutSessionDate.ToLongDateString()</h2>
+
+    <div style="margin-left: 10px">
+        @foreach (var item2 in item.ExerciseHistories)
+        {
+            <h3>@item2.ExerciseName.</h3>
+
+            @foreach (var item3 in item2.Results)
+            {
+                <h4 style="margin-left: 10px">@item3</h4>
+            }
+        }
+
+    </div>
+
+
+
+}

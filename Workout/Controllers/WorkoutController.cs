@@ -10,7 +10,6 @@ using Workout.Data;
 using Workout.Models;
 using Workout.ViewModels;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
 
 namespace Workout.Controllers
 {
@@ -298,6 +297,21 @@ namespace Workout.Controllers
             return workoutSets;
         }
 
+        private async Task<InProgressSession> GetInProgressSession()
+        {
+            IdentityUser user = await _userManager.GetUserAsync(User);
+
+            //get workout
+
+            //determine if workout is complete
+
+            //could be a problem, if they are on their last set and move
+
+            //need to determine if last set if we are going to redirect to start set
+
+            return new InProgressSession();
+        }
+
         [Route("{workoutId:int}/{workoutSetId:int}/{lastSet:bool}/{currentExerciseId:int}/{workoutSessionId:int}")]
         public ActionResult StartSet([FromRoute] int workoutId, int workoutSetId, bool lastSet, int currentExerciseId, int workoutSessionId)
         {
@@ -311,8 +325,6 @@ namespace Workout.Controllers
 
                 workoutSessionId = workoutSession.WorkoutSessionId;
             }
-
-
 
             int exerciseId = 0;
 
@@ -382,9 +394,9 @@ namespace Workout.Controllers
 
                 nextSetIsLast = nextWorkoutSet.SetOrder == workoutSets.Select(ws => ws.SetOrder).Max();
 
-                previousResult = GetLastWorkoutSetResult(nextWorkoutSet.WorkoutSetId);
+                previousResult = GetLastWorkoutSetResult(nextWorkoutSet.WorkoutSetId, workoutSessionId);
 
-                if (workoutSessionId == 0 && (DateTime.Now - previousResult.DateCreated).TotalMinutes < 60)
+                if (previousResult != null && (DateTime.Now - previousResult.DateCreated).TotalMinutes < 60)
                 {
                     workoutSessionId = previousResult.WorkoutSessionId;
                 }
@@ -408,9 +420,9 @@ namespace Workout.Controllers
 
             nextSetIsLast = nextWorkoutSet.SetOrder == workoutSets.Select(ws => ws.SetOrder).Max();
 
-            previousResult = GetLastWorkoutSetResult(nextWorkoutSet.WorkoutSetId);
+            previousResult = GetLastWorkoutSetResult(nextWorkoutSet.WorkoutSetId, workoutSessionId);
 
-            if (workoutSessionId == 0 && (DateTime.Now - previousResult.DateCreated).TotalMinutes < 60)
+            if (previousResult != null && (DateTime.Now - previousResult.DateCreated).TotalMinutes < 60)
             {
                 workoutSessionId = previousResult.WorkoutSessionId;
             }
@@ -429,10 +441,17 @@ namespace Workout.Controllers
         }
 
 
-        public WorkoutSetResult GetLastWorkoutSetResult(int workoutSetId)
+        public WorkoutSetResult GetLastWorkoutSetResult(int workoutSetId, int workoutSessionId)
         {
             var lastWorkoutSetResult = _context.WorkoutSetResult.Where(wsr => wsr.WorkoutSetId == workoutSetId)
                                              .OrderByDescending(x => x.DateCreated).FirstOrDefault();
+
+
+            if(lastWorkoutSetResult == null)
+            {
+                lastWorkoutSetResult = _context.WorkoutSetResult.Where(wsr => wsr.WorkoutSessionId == workoutSessionId)
+                                             .OrderByDescending(x => x.DateCreated).FirstOrDefault();
+            }
 
             return lastWorkoutSetResult;
         }

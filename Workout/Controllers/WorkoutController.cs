@@ -330,13 +330,13 @@ namespace Workout.Controllers
 
             if (workoutSetId == 0) //firstSet
             {
-                exerciseId = wtes.OrderBy(x => x.Order).First().ExerciseId;
+                exerciseId = wtes.First().ExerciseId;
             }
             else if (lastSet) //last set -- need next exercise
             {
                 int currentOrder = wtes.Where(wte => wte.ExerciseId == currentExerciseId).First().Order;
 
-                WorkoutToExercise workoutToExercise = wtes.Where(wte => wte.Order == currentOrder + 1).FirstOrDefault();
+                WorkoutToExercise workoutToExercise = wtes.FirstOrDefault(wte => wte.Order > currentOrder);
 
                 if (workoutToExercise == null)
                 {
@@ -344,7 +344,7 @@ namespace Workout.Controllers
                 }
                 else
                 {
-                    exerciseId = wtes.Where(wte => wte.Order == currentOrder + 1).FirstOrDefault().ExerciseId;//is null posible here?
+                    exerciseId = workoutToExercise.ExerciseId;//is null posible here?
                 }
 
             }

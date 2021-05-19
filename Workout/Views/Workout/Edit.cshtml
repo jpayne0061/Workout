@@ -32,7 +32,7 @@
                     @Html.HiddenFor(m => m.AllExercises[i])
                     @Html.HiddenFor(m => m.AllExercises[i].ExerciseID)
                     @Html.HiddenFor(m => m.AllExercises[i].ExerciseName)
-                    @Html.CheckBoxFor(m => m.AllExercises[i].Selected, new { @class = ".exercise-check-box", @onclick = "doItNow(event)" })
+                    @Html.CheckBoxFor(m => m.AllExercises[i].Selected, new { @class = ".exercise-check-box", @onclick = "showForm(event)" })
                     <h3 style="margin-bottom: 5px; display: inline-block"> @Model.AllExercises[i].ExerciseName</h3>
                     @{
                         string style = Model.AllExercises[i].Selected ? "block" : "none";
@@ -60,7 +60,20 @@
 }
 
 <script>
-    function doItNow(e) {
-        e.target.nextSibling.nextSibling.nextElementSibling.style.display = "block"
+    var globalOrder = 1;
+
+    function showForm(e) {
+        console.log("e: ", e)
+        if (e.target.nextSibling.nextSibling.nextElementSibling.style.display == "block") {
+            e.target.nextSibling.nextSibling.nextElementSibling.style.display = "none";
+            globalOrder -= 1;
+            return;
+        }
+
+        e.target.nextSibling.nextSibling.nextElementSibling.style.display = "block";
+
+        e.target.nextSibling.nextSibling.nextElementSibling.children[5].value = globalOrder;
+
+        globalOrder += 1;
     }
 </script>

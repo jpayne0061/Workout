@@ -4,8 +4,6 @@
 
 <h2>Create Workout</h2>
 
-@*<h4>@Html.ActionLink("Create Exercise", "CreateExercise", "Workout")</h4>*@
-
 @using (Html.BeginForm("Create", "Workout", FormMethod.Post))
 {
     <div class="form-group">
@@ -52,6 +50,7 @@
         console.log("e: ", e)
         if (e.target.nextSibling.nextSibling.nextElementSibling.style.display == "block") {
             e.target.nextSibling.nextSibling.nextElementSibling.style.display = "none";
+            globalOrder -= 1;
             return;
         }
 

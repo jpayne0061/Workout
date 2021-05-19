@@ -17,5 +17,6 @@ namespace Workout.Models
         public string WorkoutName { get; set; }
         public ICollection<WorkoutSet> WorkoutSet { get; set; }
         public ICollection<WorkoutToExercise> WorkoutToExercise { get; set; }
+        public string AspNetUserId { get; set; }
     }
 }

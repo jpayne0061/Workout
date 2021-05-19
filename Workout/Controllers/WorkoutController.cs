@@ -9,22 +9,33 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Workout.Data;
 using Workout.Models;
 using Workout.ViewModels;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 namespace Workout.Controllers
 {
     public class WorkoutController : Controller
     {
         ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public WorkoutController(ApplicationDbContext workoutContext)
+        public WorkoutController(ApplicationDbContext workoutContext, UserManager<IdentityUser> userManager)
         {
             _context = workoutContext;
+            _userManager = userManager;
         }
 
         // GET: Workout
-        public ActionResult Index()
+        public async Task<ActionResult> Index()
         {
-            var workouts = _context.Workout.ToList();
+            if (!User.Identity.IsAuthenticated)
+            {
+                return View("NotAuthenticated");
+            }
+
+            IdentityUser user = await _userManager.GetUserAsync(User);
+
+            var workouts = _context.Workout.Where(w => w.AspNetUserId == user.Id).ToList();
 
             var exercises = _context.Exercise.ToDictionary(x => x.ExerciseId, x => x);
 
@@ -77,6 +88,11 @@ namespace Workout.Controllers
         [Route("{workoutId:int}")]
         public ActionResult ViewHistory([FromRoute] int workoutId)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return View("NotAuthenticated");
+            }
+
             var workout = _context.Workout.Where(w => w.WorkoutId == workoutId).First();
 
             var workoutToExercise = _context.WorkoutToExercise.Where(wte => wte.WorkoutId == workoutId).ToList();
@@ -170,6 +186,11 @@ namespace Workout.Controllers
         // GET: Workout/Create
         public ActionResult Create()
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return View("NotAuthenticated");
+            }
+
             var vm = new WorkoutVM();
 
             vm.Workout = new Workout.Models.Workout();
@@ -187,6 +208,7 @@ namespace Workout.Controllers
         [HttpPost]
         public ActionResult CreateExercise(Exercise exercise)
         {
+
             exercise.DateCreated = DateTime.Now;
 
             try
@@ -209,8 +231,13 @@ namespace Workout.Controllers
 
         [HttpPost]
         //[ValidateAntiForgeryToken]
-        public ActionResult Create([FromForm] WorkoutVM workoutVM)
+        public async Task<ActionResult> Create([FromForm] WorkoutVM workoutVM)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return View("NotAuthenticated");
+            }
+
             var workout = new Workout.Models.Workout();
 
             workout.DateCreated = DateTime.Now;
@@ -218,6 +245,8 @@ namespace Workout.Controllers
             workout.WorkoutName = workoutVM.Workout.WorkoutName;
             workout.WorkoutToExercise = workoutVM.AllExercises.Where(e => e.Selected).Select(x => new WorkoutToExercise { Workout = workout, ExerciseId = x.ExerciseID, Order = x.Order, Active = true }).ToList();
             workoutVM.AllExercises = workoutVM.AllExercises.Where(e => e.Selected).ToList();
+            IdentityUser user = await _userManager.GetUserAsync(User);
+            workout.AspNetUserId = user.Id;
 
             workout.WorkoutSet = GetWorkOutSets(workoutVM, workout);
 

@@ -30,9 +30,9 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">@Html.ActionLink("Home", "Index", "Workout")</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Index">@Html.ActionLink("Create Exercise", "CreateExercise", "Workout")</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="About">@Html.ActionLink("Create Workout", "Create", "Workout")</a></li>
+                    <li>@Html.ActionLink("Home", "Index", "Workout")</li>
+                    <li>@Html.ActionLink("Create Exercise", "CreateExercise", "Workout")</li>
+                    <li>@Html.ActionLink("Create Workout", "Create", "Workout")</li>
                 </ul>
                 <partial name="_LoginPartial" />
             </div>

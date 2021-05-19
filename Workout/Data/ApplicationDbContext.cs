@@ -17,6 +17,5 @@ namespace Workout.Data
         public virtual DbSet<WorkoutSetResult> WorkoutSetResult { get; set; }
         public virtual DbSet<WorkoutToExercise> WorkoutToExercise { get; set; }
         public virtual DbSet<WorkoutSession> WorkoutSession { get; set; }
-
     }
 }

@@ -7,15 +7,15 @@
 <h4>Set: @Model.WorkoutSet.SetOrder</h4>
 <h4>Target Reps: @Model.WorkoutSet.Reps</h4>
 
-@if (@Model.PreviousWorkoutSetResult != null)
+@if (@Model.PreviousWorkoutSetResult != null && !@Model.PreviousWorkoutSetResult.FromSameSession)
 {
-    <h5>Previous Session: @Model.PreviousWorkoutSetResult?.Weight lbs,  @Model.PreviousWorkoutSetResult?.RepsCompleted reps (@Model.PreviousWorkoutSetResult?.Difficulty) </h5>
+<h5>Previous Session: @Model.PreviousWorkoutSetResult?.WorkoutSetResult.Weight lbs,  @Model.PreviousWorkoutSetResult?.WorkoutSetResult.RepsCompleted reps (@Model.PreviousDifficulty) </h5>
 }
 
 
-@if (Model.PreviousWorkoutSetResult?.Notes != null)
+@if (Model.PreviousWorkoutSetResult?.WorkoutSetResult?.Notes != null)
 {
-    <h5>Previous Notes: @Model.PreviousWorkoutSetResult?.Notes</h5>
+    <h5>Previous Notes: @Model.PreviousWorkoutSetResult?.WorkoutSetResult?.Notes</h5>
 }
 
 

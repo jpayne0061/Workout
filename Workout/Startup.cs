@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Workout.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.IO;
 
 namespace Workout
 {
@@ -34,9 +35,15 @@ namespace Workout
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            string connString = Configuration.GetConnectionString("WorkoutDB");
+
+#if DEBUG
+            connString = File.ReadAllText(@"settings_dev.txt").Trim();
+#endif
+
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    "Data Source=DESKTOP-IA957IQ\\SQLEXPRESS02;Initial Catalog=WorkoutDB;Integrated Security=True;"));
+                options.UseSqlServer(connString));
+
             services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -53,8 +60,10 @@ namespace Workout
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
-                app.UseHsts();
+                //app.UseExceptionHandler("/Home/Error");
+                //app.UseHsts();
+                app.UseDeveloperExceptionPage();
+                app.UseDatabaseErrorPage();
             }
 
             app.UseHttpsRedirection();

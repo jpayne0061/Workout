@@ -10,17 +10,38 @@ namespace Workout.ViewModels
 
         }
 
-        public SetViewModel(WorkoutSetResult previousWorkoutSetResult)
+        public SetViewModel(PreviousSetResult previousWorkoutSetResult)
         {
-            if(previousWorkoutSetResult == null)
+            if(previousWorkoutSetResult.WorkoutSetResult == null)
             {
                 return;
             }
 
-            Weight = previousWorkoutSetResult.Weight == null ? 0 : (int)previousWorkoutSetResult.Weight;
-            RepsCompleted = previousWorkoutSetResult.RepsCompleted == null ? 0 : (int)previousWorkoutSetResult.RepsCompleted;
-            Difficulty = previousWorkoutSetResult.Difficulty == null ? 0 : (Difficulty)previousWorkoutSetResult.Difficulty;
-            Notes = previousWorkoutSetResult.Notes;
+            PreviousWorkoutSetResult = previousWorkoutSetResult;
+
+            Weight = previousWorkoutSetResult.WorkoutSetResult.Weight == null ? 0 : (int)previousWorkoutSetResult.WorkoutSetResult.Weight;
+            RepsCompleted = previousWorkoutSetResult.WorkoutSetResult.RepsCompleted == null ? 0 : (int)previousWorkoutSetResult.WorkoutSetResult.RepsCompleted;
+            Difficulty = previousWorkoutSetResult.WorkoutSetResult.Difficulty == null ? 0 : (Difficulty)previousWorkoutSetResult.WorkoutSetResult.Difficulty;
+            Notes = previousWorkoutSetResult.WorkoutSetResult.Notes;
+
+            switch(previousWorkoutSetResult.WorkoutSetResult.Difficulty){
+                case 0:
+                    PreviousDifficulty = "Easy";
+                    break;
+                case 1:
+                    PreviousDifficulty = "Easy Medium";
+                    break;
+                case 2:
+                    PreviousDifficulty = "Medium";
+                    break;
+                case 3:
+                    PreviousDifficulty = "Medium Difficult";
+                    break;
+                case 4:
+                    PreviousDifficulty = "Difficult";
+                    break;
+            }
+
         }
 
         public Exercise Exercise { get; set; }
@@ -28,11 +49,11 @@ namespace Workout.ViewModels
         public int RepsCompleted { get; set; }
         public int Weight { get; set; }
         public Difficulty Difficulty { get; set; }
+        public string PreviousDifficulty { get; set; }
         public string Notes { get; set; }
         public bool IsLastSet { get; set; }
         public int WorkoutId { get; set; }
         public int WorkoutSessionId { get; set; }
-        public WorkoutSetResult PreviousWorkoutSetResult { get; set; }
-        
+        public PreviousSetResult PreviousWorkoutSetResult { get; set; }
     }
 }

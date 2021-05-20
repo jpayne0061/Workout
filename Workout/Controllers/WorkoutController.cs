@@ -155,6 +155,8 @@ namespace Workout.Controllers
                 workoutSessions.Add(workoutSessionVM);
             }
 
+            workoutSessions = workoutSessions.OrderByDescending(ws => ws.WorkoutSessionDate).ToList();
+
             return View("WorkoutHistory", workoutSessions);
         }
 
@@ -358,7 +360,6 @@ namespace Workout.Controllers
                 {
                     exerciseId = workoutToExercise.ExerciseId;//is null posible here?
                 }
-
             }
             else
             {
@@ -384,7 +385,7 @@ namespace Workout.Controllers
 
             SetViewModel setViewModel = null;
 
-            WorkoutSetResult previousResult = null;
+            PreviousSetResult previousResult = null;
 
             if (workoutSetId == 0 || lastSet)
             {
@@ -396,9 +397,9 @@ namespace Workout.Controllers
 
                 previousResult = GetLastWorkoutSetResult(nextWorkoutSet.WorkoutSetId, workoutSessionId);
 
-                if (previousResult != null && (DateTime.Now - previousResult.DateCreated).TotalMinutes < 60)
+                if (previousResult.WorkoutSetResult != null && (DateTime.Now - previousResult.WorkoutSetResult.DateCreated).TotalMinutes < 60)
                 {
-                    workoutSessionId = previousResult.WorkoutSessionId;
+                    workoutSessionId = previousResult.WorkoutSetResult.WorkoutSessionId;
                 }
 
                 setViewModel = new SetViewModel(previousResult);
@@ -407,7 +408,6 @@ namespace Workout.Controllers
                 setViewModel.WorkoutSet = nextWorkoutSet;
                 setViewModel.WorkoutId = workoutId;
                 setViewModel.IsLastSet = nextSetIsLast;
-                setViewModel.PreviousWorkoutSetResult = previousResult;
 
                 ModelState.SetModelValue("workoutSessionId", new ValueProviderResult(new Microsoft.Extensions.Primitives.StringValues(workoutSessionId.ToString()), CultureInfo.InvariantCulture));
 
@@ -422,9 +422,9 @@ namespace Workout.Controllers
 
             previousResult = GetLastWorkoutSetResult(nextWorkoutSet.WorkoutSetId, workoutSessionId);
 
-            if (previousResult != null && (DateTime.Now - previousResult.DateCreated).TotalMinutes < 60)
+            if (previousResult.WorkoutSetResult != null && (DateTime.Now - previousResult.WorkoutSetResult.DateCreated).TotalMinutes < 60)
             {
-                workoutSessionId = previousResult.WorkoutSessionId;
+                workoutSessionId = previousResult.WorkoutSetResult.WorkoutSessionId;
             }
 
             setViewModel = new SetViewModel(previousResult);
@@ -433,7 +433,6 @@ namespace Workout.Controllers
             setViewModel.WorkoutSet = nextWorkoutSet;
             setViewModel.WorkoutId = workoutId;
             setViewModel.IsLastSet = nextSetIsLast;
-            setViewModel.PreviousWorkoutSetResult = previousResult;
 
             ModelState.SetModelValue("workoutSessionId", new ValueProviderResult(new Microsoft.Extensions.Primitives.StringValues(workoutSessionId.ToString()), CultureInfo.InvariantCulture));
 
@@ -441,19 +440,22 @@ namespace Workout.Controllers
         }
 
 
-        public WorkoutSetResult GetLastWorkoutSetResult(int workoutSetId, int workoutSessionId)
+        public PreviousSetResult GetLastWorkoutSetResult(int workoutSetId, int workoutSessionId)
         {
+            bool fromSameSession = false;
+
             var lastWorkoutSetResult = _context.WorkoutSetResult.Where(wsr => wsr.WorkoutSetId == workoutSetId)
                                              .OrderByDescending(x => x.DateCreated).FirstOrDefault();
-
 
             if(lastWorkoutSetResult == null)
             {
                 lastWorkoutSetResult = _context.WorkoutSetResult.Where(wsr => wsr.WorkoutSessionId == workoutSessionId)
                                              .OrderByDescending(x => x.DateCreated).FirstOrDefault();
+
+                fromSameSession = true;
             }
 
-            return lastWorkoutSetResult;
+            return new PreviousSetResult { WorkoutSetResult = lastWorkoutSetResult, FromSameSession = fromSameSession };
         }
 
 

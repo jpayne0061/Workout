@@ -22,7 +22,6 @@ namespace Workout.ViewModels
             Weight = previousWorkoutSetResult.WorkoutSetResult.Weight == null ? 0 : (int)previousWorkoutSetResult.WorkoutSetResult.Weight;
             RepsCompleted = previousWorkoutSetResult.WorkoutSetResult.RepsCompleted == null ? 0 : (int)previousWorkoutSetResult.WorkoutSetResult.RepsCompleted;
             Difficulty = previousWorkoutSetResult.WorkoutSetResult.Difficulty == null ? 0 : (Difficulty)previousWorkoutSetResult.WorkoutSetResult.Difficulty;
-            Notes = previousWorkoutSetResult.WorkoutSetResult.Notes;
 
             switch(previousWorkoutSetResult.WorkoutSetResult.Difficulty){
                 case 0:

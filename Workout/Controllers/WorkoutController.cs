@@ -136,7 +136,12 @@ namespace Workout.Controllers
 
                     foreach (WorkoutSetResult result in etr.Value)
                     {
-                        var resultLine = $"Set {i}: Weight = {result.Weight}. Reps = {result.RepsCompleted}.";
+                        var resultLine = $"Set {i}: Weight = {result.Weight} Reps = {result.RepsCompleted}";
+
+                        if(result.Skipped)
+                        {
+                            resultLine = $"Set {i}: skipped";
+                        }
 
                         exerciseResultsHistory.Results.Add(resultLine);
 
@@ -471,6 +476,14 @@ namespace Workout.Controllers
             workoutSetResult.Weight = setViewModel.Weight;
             workoutSetResult.WorkoutSetId = setViewModel.WorkoutSet.WorkoutSetId;
             workoutSetResult.WorkoutSessionId = setViewModel.WorkoutSessionId;
+            workoutSetResult.Skipped = setViewModel.Skipped;
+
+            if(workoutSetResult.Skipped)
+            {
+                workoutSetResult.Difficulty = 0;
+                workoutSetResult.RepsCompleted = 0;
+                workoutSetResult.Weight = 0;
+            }
 
             _context.WorkoutSetResult.Add(workoutSetResult);
 

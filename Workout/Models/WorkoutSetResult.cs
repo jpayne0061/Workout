@@ -14,5 +14,6 @@ namespace Workout.Models
         public int WorkoutSetResultId { get; set; }
         public int WorkoutSessionId { get; set; }
         public WorkoutSet WorkoutSet { get; set; }
+        public bool Skipped { get; set; }
     }
 }

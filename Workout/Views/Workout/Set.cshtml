@@ -2,14 +2,33 @@
 @using Workout.ViewModels
 @model SetViewModel
 
-<h3>@Model.Exercise.ExerciseName</h3>
+
+<div style="display: table; clear: both; width: 100%">
+    <h3 style="float: left">@Model.Exercise.ExerciseName</h3> 
+    <div style="float: right;">
+        @using (Html.BeginForm("CompleteSet", "Workout", FormMethod.Post))
+        {   
+            @Html.HiddenFor(m => m.WorkoutSet.Reps)
+            @Html.HiddenFor(m => m.WorkoutSet.WorkoutSetId)
+            @Html.HiddenFor(m => m.Exercise.ExerciseId)
+            @Html.HiddenFor(m => m.Exercise.ExerciseName)
+            @Html.HiddenFor(m => m.WorkoutId)
+            @Html.HiddenFor(m => m.IsLastSet)
+            @Html.HiddenFor(m => m.WorkoutSessionId)
+            <input data-val="true" data-val-required="The Skipped field is required." id="Skipped" name="Skipped" type="hidden" value="True">
+
+            <input type="submit" class="btn btn-danger" style="float:right; display: block; margin-top: 20px" value="Skip" />
+        }
+    </div>
+</div>
+
 
 <h4>Set: @Model.WorkoutSet.SetOrder</h4>
 <h4>Target Reps: @Model.WorkoutSet.Reps</h4>
 
 @if (@Model.PreviousWorkoutSetResult != null && !@Model.PreviousWorkoutSetResult.FromSameSession)
 {
-<h5>Previous Session: @Model.PreviousWorkoutSetResult?.WorkoutSetResult.Weight lbs,  @Model.PreviousWorkoutSetResult?.WorkoutSetResult.RepsCompleted reps (@Model.PreviousDifficulty) </h5>
+    <h5>Previous Session: @Model.PreviousWorkoutSetResult?.WorkoutSetResult.Weight lbs,  @Model.PreviousWorkoutSetResult?.WorkoutSetResult.RepsCompleted reps (@Model.PreviousDifficulty) </h5>
 }
 
 

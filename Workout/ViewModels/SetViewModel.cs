@@ -54,5 +54,6 @@ namespace Workout.ViewModels
         public int WorkoutId { get; set; }
         public int WorkoutSessionId { get; set; }
         public PreviousSetResult PreviousWorkoutSetResult { get; set; }
+        public bool Skipped { get; set; }
     }
 }

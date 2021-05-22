@@ -322,16 +322,8 @@ namespace Workout.Controllers
         [Route("{workoutId:int}/{workoutSetId:int}/{lastSet:bool}/{currentExerciseId:int}/{workoutSessionId:int}")]
         public ActionResult StartSet([FromRoute] int workoutId, int workoutSetId, bool lastSet, int currentExerciseId, int workoutSessionId)
         {
-            if (workoutSessionId == 0)
-            {
-                WorkoutSession workoutSession = new WorkoutSession { DateCreated = DateTime.Now };
-
-                _context.WorkoutSession.Add(workoutSession);
-
-                _context.SaveChanges();
-
-                workoutSessionId = workoutSession.WorkoutSessionId;
-            }
+            //check if session is active
+            //if so, get workoutid, workoutsetid, lastset, current 
 
             int exerciseId = 0;
 
@@ -344,6 +336,104 @@ namespace Workout.Controllers
             List<Exercise> exercises = _context.Exercise
                 .Where(e => wtes.Select(wte => wte.ExerciseId)
                 .Contains(e.ExerciseId)).ToList();
+
+            //get last session
+            WorkoutSession lastWorkoutSession = null;
+
+            WorkoutSet currentWorkoutSet = null;
+
+            WorkoutSet nextWorkoutSet = null;
+
+            List<WorkoutSet> workoutSets = null;
+
+            bool needToGetCurrentSessionInfo = false;
+
+            if(workoutSessionId == 0)
+            {
+                lastWorkoutSession = _context.WorkoutSession.Where(ws => (DateTime.Now - ws.DateCreated).TotalHours < 1).FirstOrDefault();
+
+                if(lastWorkoutSession != null)
+                {
+                    needToGetCurrentSessionInfo = true;
+                }
+
+            }
+
+            List<WorkoutSetResult> workoutSetResults = null;
+
+            if(lastWorkoutSession != null)
+            {
+                workoutSetResults = _context.WorkoutSetResult.Where(wsr => wsr.WorkoutSessionId == lastWorkoutSession.WorkoutSessionId).ToList();
+            }
+            
+
+            //need to check if session started with different workout
+
+
+
+            //if(workoutSetResults.Where(wsr => wsr.))
+            //{
+
+            //}
+
+            if (needToGetCurrentSessionInfo)
+            {
+                
+
+                wtes = _context.WorkoutToExercise
+                        .Where(we => we.WorkoutId == workoutId && we.Active)
+                        .OrderBy(wte => wte.Order).ToList();
+
+                var lastCompletedWorkoutSetResult = workoutSetResults.OrderByDescending(wsr => wsr.WorkoutSetResultId).First();
+
+                
+                workoutSetId = lastCompletedWorkoutSetResult.WorkoutSetId;
+
+                var currentWorkoutSetHere = _context.WorkoutSet
+                                .Where(ws => ws.WorkoutSetId == workoutSetId)
+                                .Single();
+
+                //is lastCompletedWorkoutSetResult the last set?
+                currentExerciseId = currentWorkoutSetHere.ExerciseId;
+
+                var workoutSetsHere = _context.WorkoutSet.Where(ws => ws.WorkoutId == workoutId && ws.ExerciseId == currentExerciseId).ToList();
+
+
+                if(workoutSetsHere.Count == 0) //user has started session, but switched workouts.what if workout edited in middle of session?
+                {
+                    workoutSetId = 0;
+                    lastSet = false;
+                    currentExerciseId = 0;
+                }
+                else if(workoutSetsHere.Count == 1)
+                {
+                    lastSet = true;
+                }
+                else
+                {
+                    lastSet = workoutSetsHere.OrderByDescending(wsh => wsh.SetOrder).First().WorkoutSetId == workoutSetId;
+                }
+
+            }
+
+
+            if(workoutSessionId == 0 && lastWorkoutSession != null)
+            {
+                workoutSessionId = lastWorkoutSession.WorkoutSessionId;
+            }
+
+            if (workoutSessionId == 0)
+            {
+                WorkoutSession workoutSession = new WorkoutSession { DateCreated = DateTime.Now };
+
+                _context.WorkoutSession.Add(workoutSession);
+
+                _context.SaveChanges();
+
+                workoutSessionId = workoutSession.WorkoutSessionId;
+            }
+
+
 
             bool workoutComplete = false;
 
@@ -378,15 +468,15 @@ namespace Workout.Controllers
 
             exercise = exercises.Where(e => e.ExerciseId == exerciseId).Single();
 
-            var workoutSets = _context.WorkoutSet
+            workoutSets = _context.WorkoutSet
                 .Where(ws => ws.WorkoutId == workoutId && ws.ExerciseId == exerciseId && ws.Active)
                 .OrderBy(x => x.SetOrder).ToList();
 
-            WorkoutSet currentWorkoutSet = null;
+            
 
             bool nextSetIsLast = false;
 
-            WorkoutSet nextWorkoutSet = null;
+            
 
             SetViewModel setViewModel = null;
 
